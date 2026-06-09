@@ -1,7 +1,11 @@
 import type { CardDefinition, CardSchedule } from '../types/card';
 import { TOTAL_TURNS } from '../types/card';
-import { TOTAL_QUARTER_STEPS, type QuarterStage } from './quarterFlow';
-
+import {
+  getQuarterAssignedEffort,
+  MAX_QUARTER_EFFORT,
+  TOTAL_QUARTER_STEPS,
+  type QuarterStage,
+} from './quarterFlow';
 export interface Round1CardInput {
   effortByRound: number[];
   completedRound: number | null;
@@ -23,6 +27,14 @@ export {
   stepToQuarterStage,
 } from './quarterFlow';
 
+export function isRound1QuarterEffortWithinCap(
+  cards: CardDefinition[],
+  inputs: Round1Inputs,
+  quarter: number,
+): boolean {
+  return getQuarterAssignedEffort(cards, inputs, quarter) <= MAX_QUARTER_EFFORT;
+}
+
 export function createEmptyRound1Inputs(cards: CardDefinition[]): Round1Inputs {
   return Object.fromEntries(
     cards.map((card) => [
@@ -41,38 +53,49 @@ export function getCumulativeEffort(input: Round1CardInput, throughRound: number
     .reduce((sum, effort) => sum + effort, 0);
 }
 
-export function reconcileCardCompletion(
+export function getFirstCompletionQuarter(
+  card: CardDefinition,
+  input: Round1CardInput,
+): number | null {
+  if (card.effort <= 0) return null;
+
+  for (let quarter = 1; quarter <= TOTAL_TURNS; quarter += 1) {
+    if (getCumulativeEffort(input, quarter) >= card.effort) {
+      return quarter;
+    }
+  }
+
+  return null;
+}
+
+export function recalculateCardCompletion(
   card: CardDefinition,
   input: Round1CardInput,
 ): Round1CardInput {
-  if (input.completedRound === null) return input;
+  return {
+    ...input,
+    completedRound: getFirstCompletionQuarter(card, input),
+  };
+}
 
-  const cumulative = getCumulativeEffort(input, input.completedRound);
-  if (card.effort > 0 && cumulative < card.effort) {
-    return { ...input, completedRound: null };
-  }
-
-  return input;
+export function recalculateAllRound1Completions(
+  cards: CardDefinition[],
+  inputs: Round1Inputs,
+): Round1Inputs {
+  return Object.fromEntries(
+    cards.map((card) => [
+      card.cardId,
+      recalculateCardCompletion(card, inputs[card.cardId]),
+    ]),
+  );
 }
 
 export function applyReviewCompletion(
   cards: CardDefinition[],
   inputs: Round1Inputs,
-  quarter: number,
+  _quarter: number,
 ): Round1Inputs {
-  const next = { ...inputs };
-
-  for (const card of cards) {
-    const input = next[card.cardId];
-    if (!input || input.completedRound !== null) continue;
-
-    const cumulative = getCumulativeEffort(input, quarter);
-    if (card.effort > 0 && cumulative >= card.effort) {
-      next[card.cardId] = { ...input, completedRound: quarter };
-    }
-  }
-
-  return next;
+  return recalculateAllRound1Completions(cards, inputs);
 }
 
 export function effortToSchedules(

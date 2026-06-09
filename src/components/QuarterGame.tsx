@@ -5,9 +5,7 @@ import {
   getCumulativeEffort,
   getQuarterAssignedEffort,
   getRound1CardStatus,
-  isCardQuarterEffortWithinCap,
-  isQuarterEffortWithinCap,
-  MAX_CARD_QUARTER_EFFORT,
+  isRound1QuarterEffortWithinCap,
   MAX_QUARTER_EFFORT,
   stepToQuarterStage,
   type Round1CardInput,
@@ -64,12 +62,12 @@ export function QuarterGame({
     [cards, inputs, activeQuarter],
   );
   const isPrepEffortOverCap =
-    stage === 'prep' && !isQuarterEffortWithinCap(cards, inputs, activeQuarter);
+    stage === 'prep' && !isRound1QuarterEffortWithinCap(cards, inputs, activeQuarter);
   const isNextDisabled = isPrepEffortOverCap;
 
   const updateEffort = (cardId: string, effort: number) => {
     const current = inputs[cardId];
-    if (!current || current.completedRound !== null) return;
+    if (!current) return;
 
     const effortByRound = [...current.effortByRound];
     effortByRound[activeQuarter - 1] = Math.max(0, effort);
@@ -302,8 +300,6 @@ function Round1ReviewViews({
   );
 }
 
-const CARD_EFFORT_VALIDATION_MESSAGE = `Maximum effort per card is ${MAX_CARD_QUARTER_EFFORT} per quarter.`;
-
 function Round1PrepTableRow({
   card,
   input,
@@ -316,9 +312,7 @@ function Round1PrepTableRow({
   onUpdateEffort: (cardId: string, effort: number) => void;
 }) {
   const cumulativeEffort = getCumulativeEffort(input, activeQuarter);
-  const isCompleted = input.completedRound !== null;
   const effortThisQuarter = input.effortByRound[activeQuarter - 1] ?? 0;
-  const isEffortOverCardCap = !isCardQuarterEffortWithinCap(effortThisQuarter);
 
   return (
     <tr>
@@ -331,12 +325,8 @@ function Round1PrepTableRow({
             min={0}
             className="turn-input card-effort-input"
             value={effortThisQuarter || ''}
-            disabled={isCompleted}
             onChange={(event) => onUpdateEffort(card.cardId, Number(event.target.value) || 0)}
           />
-          {isEffortOverCardCap && (
-            <p className="status error card-effort-validation">{CARD_EFFORT_VALIDATION_MESSAGE}</p>
-          )}
         </div>
       </td>
       <td>{cumulativeEffort}</td>
@@ -357,9 +347,7 @@ function Round1PrepMobileCard({
   onUpdateEffort: (cardId: string, effort: number) => void;
 }) {
   const cumulativeEffort = getCumulativeEffort(input, activeQuarter);
-  const isCompleted = input.completedRound !== null;
   const effortThisQuarter = input.effortByRound[activeQuarter - 1] ?? 0;
-  const isEffortOverCardCap = !isCardQuarterEffortWithinCap(effortThisQuarter);
 
   return (
     <article className="card-mobile-panel">
@@ -378,12 +366,8 @@ function Round1PrepMobileCard({
             inputMode="numeric"
             className="turn-input card-effort-input card-effort-input-mobile"
             value={effortThisQuarter || ''}
-            disabled={isCompleted}
             onChange={(event) => onUpdateEffort(card.cardId, Number(event.target.value) || 0)}
           />
-          {isEffortOverCardCap && (
-            <p className="status error card-effort-validation">{CARD_EFFORT_VALIDATION_MESSAGE}</p>
-          )}
         </div>
         <div className="card-mobile-field">
           <span className="card-mobile-label">Cumulative effort</span>

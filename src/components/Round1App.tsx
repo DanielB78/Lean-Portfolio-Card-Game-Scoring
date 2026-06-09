@@ -6,8 +6,8 @@ import {
   applyReviewCompletion,
   createEmptyRound1Inputs,
   effortToSchedules,
-  isQuarterEffortWithinCap,
-  reconcileCardCompletion,
+  isRound1QuarterEffortWithinCap,
+  recalculateCardCompletion,
   stepToQuarterStage,
   TOTAL_ROUND1_STEPS,
   type Round1Inputs,
@@ -98,7 +98,7 @@ export function Round1App({
     const reconciled = Object.fromEntries(
       cards.map((card) => [
         card.cardId,
-        reconcileCardCompletion(card, nextInputs[card.cardId]),
+        recalculateCardCompletion(card, nextInputs[card.cardId]),
       ]),
     );
     setInputs(reconciled);
@@ -110,7 +110,7 @@ export function Round1App({
     const { quarter, stage } = stepToQuarterStage(gameStep);
 
     if (nextStep === gameStep + 1 && stage === 'prep') {
-      if (!isQuarterEffortWithinCap(cards, inputs, quarter)) {
+      if (!isRound1QuarterEffortWithinCap(cards, inputs, quarter)) {
         return;
       }
 

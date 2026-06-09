@@ -1,4 +1,5 @@
 import { Charts } from './Charts';
+import { SubmitTeamScore } from './SubmitTeamScore';
 import type { ComparisonRoundData } from '../types/comparison';
 
 interface ComparisonResultsProps {
@@ -77,6 +78,11 @@ export function ComparisonResults({
         <ComparisonColumn roundLabel="ROUND 1" data={round1} />
         <ComparisonColumn roundLabel="ROUND 2" data={round2} />
       </div>
+
+      <SubmitTeamScore
+        round1FinalScore={round1?.scoring.finalScore ?? null}
+        round2FinalScore={round2?.scoring.finalScore ?? null}
+      />
     </div>
   );
 }
