@@ -1,12 +1,21 @@
 import { useState, type FormEvent } from 'react';
+import { saveGraphDataForSubmission } from '../lib/graphDataStorage';
 import { getSupabaseClient } from '../lib/supabase';
+import type { ComparisonRoundData } from '../types/comparison';
 
 interface SubmitTeamScoreProps {
   round1FinalScore: number | null;
   round2FinalScore: number | null;
+  round1Data: ComparisonRoundData | null;
+  round2Data: ComparisonRoundData | null;
 }
 
-export function SubmitTeamScore({ round1FinalScore, round2FinalScore }: SubmitTeamScoreProps) {
+export function SubmitTeamScore({
+  round1FinalScore,
+  round2FinalScore,
+  round1Data,
+  round2Data,
+}: SubmitTeamScoreProps) {
   const [teamName, setTeamName] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -44,15 +53,33 @@ export function SubmitTeamScore({ round1FinalScore, round2FinalScore }: SubmitTe
       },
     ]);
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       console.error('Error submitting score:', error);
       setSubmitError('Could not submit score. Please try again.');
       return;
     }
 
-    setSubmitSuccess('Score submitted successfully.');
+    let successMessage = 'Score submitted successfully.';
+
+    if (round1Data && round2Data) {
+      const { error: graphError } = await saveGraphDataForSubmission(
+        trimmedTeamName,
+        round1Data,
+        round2Data,
+      );
+
+      if (graphError) {
+        console.error('Error saving graph data:', graphError);
+        successMessage =
+          'Score submitted successfully, but graph data could not be saved. Please try again later.';
+      } else {
+        successMessage = 'Score and graph data submitted successfully.';
+      }
+    }
+
+    setLoading(false);
+    setSubmitSuccess(successMessage);
     setSubmitted(true);
   };
 

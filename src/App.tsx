@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { ComparisonResults } from './components/ComparisonResults';
+import { LoadGraphDataPage } from './components/LoadGraphDataPage';
 import { LandingPage } from './components/LandingPage';
 import { Round1App } from './components/Round1App';
 import { Round2App } from './components/round2/Round2App';
 import { scrollToTopAfterRender } from './lib/scrollToTop';
 import type { ComparisonRoundData } from './types/comparison';
 import './App.css';
-type AppView = 'landing' | 'game';
+type AppView = 'landing' | 'game' | 'load-graphs';
 type GameSection = 'round1' | 'round2' | 'comparison';
 
 export default function App() {
@@ -55,7 +56,11 @@ export default function App() {
   return (
     <div className="app">
       <div hidden={view !== 'landing'} className="landing-page-shell">
-        <LandingPage onStart={handleStart} />
+        <LandingPage onStart={handleStart} onLoadGraphData={() => setView('load-graphs')} />
+      </div>
+
+      <div hidden={view !== 'load-graphs'} className="load-graph-page-shell">
+        <LoadGraphDataPage onGoHome={() => setView('landing')} />
       </div>
 
       <div hidden={view !== 'game'} className="game-shell">

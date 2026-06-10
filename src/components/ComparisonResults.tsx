@@ -82,6 +82,8 @@ export function ComparisonResults({
       <SubmitTeamScore
         round1FinalScore={round1?.scoring.finalScore ?? null}
         round2FinalScore={round2?.scoring.finalScore ?? null}
+        round1Data={round1}
+        round2Data={round2}
       />
     </div>
   );
