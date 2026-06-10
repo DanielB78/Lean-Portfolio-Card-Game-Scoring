@@ -1,3 +1,7 @@
+/**
+ * Loads Round 1 card values from Excel (.xlsx). Parsed rows become CardDefinition objects
+ * via columnMapping.ts. Default file: public/cards.xlsx
+ */
 import * as XLSX from 'xlsx';
 import { buildColumnMapping, mapRowsToCards } from './columnMapping';
 import type { CardDefinition, ColumnMappingEntry } from '../types/card';

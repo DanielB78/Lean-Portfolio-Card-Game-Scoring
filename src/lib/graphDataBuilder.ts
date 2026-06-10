@@ -1,3 +1,7 @@
+/**
+ * Builds Supabase graph_data_points rows from scoring results. Logic mirrors Charts.tsx
+ * so saved graphs match what users see on the Compare page.
+ */
 import { calculateAchievedRecurringByTurn, calculatePossibleRecurringByTurn } from './possibleValue';
 import { calculateDeliveryRiskByTurn, deliveryRiskFromTurnResults } from './deliveryRisk';
 import { calculateLeadTimeHistogram } from './leadTime';

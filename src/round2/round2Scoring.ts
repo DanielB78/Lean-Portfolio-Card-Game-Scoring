@@ -1,3 +1,7 @@
+/**
+ * Round 2 scoring engine — threshold-based completion, recurring, and deadline penalties.
+ * See CODE_STRUCTURE.md for Round 2 card loading and chart adapter details.
+ */
 import type { GameConfig, ScoringResult, TurnResult } from '../types/card';
 import { DEFAULT_GAME_CONFIG } from '../types/card';
 import {

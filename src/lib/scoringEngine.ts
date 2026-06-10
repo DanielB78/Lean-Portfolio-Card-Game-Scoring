@@ -1,3 +1,7 @@
+/**
+ * Round 1 scoring engine — computes per-turn and final scores from card definitions
+ * and player schedules. See CODE_STRUCTURE.md for how this fits with spreadsheets and charts.
+ */
 import type {
   CardDefinition,
   CardSchedule,
